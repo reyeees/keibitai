@@ -2,9 +2,6 @@ from os import path
 from sys import argv
 from os import system
 
-def start() -> None:
-    pass
-
 if __name__ == "__main__":
     asset_file = ""
     port = "8000"

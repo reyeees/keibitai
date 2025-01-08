@@ -1,126 +1,157 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Image Viewer Master</title>
+        <meta charset="UTF-8"/>
+        <!-- <meta
+            http-equiv="Content-Security-Policy"
+            content="default-src 'self'; script-src 'self'"
+        />
+        <meta
+            http-equiv="X-Content-Security-Policy"
+            content="default-src 'self'; script-src 'self'"
+        /> -->
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>警備隊</title>
         <style>
             body {
-                background-color: #2f2f2f;
                 color: #f2f2f2;
+                background: rgb(16,31,15);
+                background: linear-gradient(343deg, rgba(16,31,15,1) 0%, rgba(54,79,78,1) 100%); 
+
+                margin: 0px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-start;
+                min-height: 100vh; 
+                text-align: center;
+            }
+            
+            div#feed {
+                background-color: #2f2f2f3f;
+                box-shadow: 0px 5px 4px 0px #0f0f0f7f;
+                outline: 1px solid #2f2f39;
+                
+                gap: 20px;
+                padding: 5px;
+
+                transition: all 0.5s ease-in-out;
             }
 
-            p#info {
-                position: fixed;
-                top: -7px;
-                left: 120px;
+            div#imager {
+                padding: 20px;
+                display: flex;
+                gap: 20px;
+                justify-content: center;
+                transition: all 0.5s ease-in-out;
             }
 
             div#images {
+                background-color: #2f2f2f;
+
+                cursor: default;
+
                 display: flex;
-                position: relative;
-                border: 1px black;
+                flex-direction: column;
+                align-items: center;
+                height: 350px;
+                border-radius: 8px;
+                box-shadow: 0px 5px 4px 0px #0f0f0f7f;
+                overflow: hidden;
+                padding: 10px;
+                gap: 10px;
+                outline: 1px solid #2f2f39;
+
+                transition: all 0.5s ease-in-out;
             }
 
-            div#images > img#first {
-                margin: 10px;
-                width: 20%;
-                height: 20%;
+            div#images:hover p span {
+                display: none;
             }
 
-            div#images > img#second {
-                margin: 10px;
-                width: 20%;
-                height: 20%;
+            div#images:hover {
+                background-color: #1f1f1f;
+                cursor: pointer;
+                transition: all 0.5s ease-in-out;
             }
 
-            button#next-button {
-                width: 50px;
-                margin: 1px;
+            div#images:hover:before {
+                content: "Move to trash folder";
             }
 
-            button#ok-button {
-                width: 50px;
-                margin: 1px;
+            img#image {
+                max-height: 92%;
+                border-radius: 8px;
+                width: auto;
+                object-fit: contain;
+                flex-shrink: 0;
+                transition: all 0.5s ease-in-out;
+            }
+
+            div#images p {
+                color: #f2f2f2;
+
+                margin-top: 2px;
+                text-align: center;
+                font-size: 14px;
+                flex-shrink: 0;
+                transition: all 0.5s ease-in-out;
+            }
+
+            div#percents {
+                color: #f2f2f2;
+                
+                display: flex;
+                text-align: center;
+                align-items: center;
+                justify-content: center;      
+                transition: all 0.5s ease-in-out;
+            }
+            
+            div#percents p {
+                background-color: #2f2f2f3f;
+                box-shadow: 0px 0px 2px 2px #0f0f0f7f;
+                outline: 1px solid #2f2f39;
+                
+                border-radius: 8px;
+                cursor: default;
+                
+                font-size: 18px;
+                padding: 15px;
+                transition: all 0.5s ease-in-out;
+            }
+
+            div#percents p:hover span {
+                display: none;
+            }
+
+            div#percents p:hover:before {
+                content: "Save to txt";
+            }
+
+            div#percents p:hover {
+                background-color: #2f2f2fef;
+                cursor: pointer;
+                transition: all 0.5s ease-in-out;
             }
         </style>
     </head>
     <body>
-        <div>
-            <button id="ok-button"></button>
-            <button id="next-button">Next</button>
-            <p id="info"></p>
-        </div>
-        <p id="hashes"></p>
-        <div id="images">
-            <img id="first" src="" alt="">
-            <img id="second" src="" alt="">
-        </div>
-
-        <script>
-            var next_button = document.getElementById("next-button");
-            var ok_button = document.getElementById("ok-button");
-            var image_div = document.getElementById("images");
-            var info_box = document.getElementById("info");
-            var hashes = document.getElementById("hashes");
-            var index = 0;
+        <div id="feed">
             
-            function httpGetAsync(theUrl, callback) {
+        </div>
+        <script type="text/javascript">
+            function home_url(string) {
+                return "http://{{ address }}:{{ port }}".concat(string);
+            }
+
+            function httpGet(url) {
                 var xmlHttp = new XMLHttpRequest();
-                xmlHttp.onreadystatechange = function() {
-                    if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-                    callback(xmlHttp.responseText);
-                }
-                xmlHttp.open("GET", theUrl, true);
+                xmlHttp.open("GET", home_url(url), false);
                 xmlHttp.send(null);
-            };
-            
-            function update_images(data) {
-                var response = JSON.parse(data);
-                console.log(response["message"], index);
-                image_div.children[0].src = "http://{{ address }}:{{ port }}/file?f=".concat(btoa(response["first_filename"]))
-                image_div.children[0].alt = response["first_hash"]
-                image_div.children[1].src = "http://{{ address }}:{{ port }}/file?f=".concat(btoa(response["second_filename"]))
-                image_div.children[1].alt = response["second_hash"]
-
-                info_box.textContent = "".concat(response["percents"], " | ", response["first_filename"], " - ", response["second_filename"]);
-                hashes.textContent = "".concat(response["first_hash"], " ", response["second_hash"]);
+                return JSON.parse(xmlHttp.responseText);
             }
-
-            next_button.onclick = function() {
-                httpGetAsync("http://{{ address }}:{{ port }}/index?index=".concat(index.toString()), update_images);
-                index += 1;
-            };
-
-            ok_button.onclick = function() {
-                index -= 2;
-                httpGetAsync("http://{{ address }}:{{ port }}/index?index=".concat(index.toString()), update_images);
-                index += 1;
-            }
-
-            function save() {
-                httpGetAsync("http://{{ address }}:{{ port }}/save?index=".concat(index.toString()), console.log);
-                hashes.textContent += " - Saved."
-            }
-
-            function start() {
-                next_button.textContent = "-->"
-                ok_button.textContent = "<--"
-                next_button.click();
-            };
-
-            document.onkeydown = function (e) {
-                // console.log(e.keyCode); // 13
-                if (e.keyCode == 37 || e.keyCode == 81) { // back function. arrow-left or Q
-                    ok_button.click();
-                }
-                if (e.keyCode == 39 || e.keyCode == 69) { // next function. arrow-right or E
-                    next_button.click();
-                }
-                if (e.keyCode == 13) {
-                    save();
-                } // Return or Enter
-            };
-
-            start();
         </script>
+        <script type="text/javascript" src="{{ url_for('static', path='/script.js') }}"></script>
     </body>
 </html>

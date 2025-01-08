@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Image Viewer Master</title>
+        <style>
+            body {
+                background-color: #2f2f2f;
+                color: #f2f2f2;
+            }
+
+            p#info {
+                position: fixed;
+                top: -7px;
+                left: 120px;
+            }
+
+            div#images {
+                display: flex;
+                position: relative;
+                border: 1px black;
+            }
+
+            div#images > img#first {
+                margin: 10px;
+                width: 20%;
+                height: 20%;
+            }
+
+            div#images > img#second {
+                margin: 10px;
+                width: 20%;
+                height: 20%;
+            }
+
+            button#next-button {
+                width: 50px;
+                margin: 1px;
+            }
+
+            button#ok-button {
+                width: 50px;
+                margin: 1px;
+            }
+        </style>
+    </head>
+    <body>
+        <div>
+            <button id="ok-button"></button>
+            <button id="next-button">Next</button>
+            <p id="info"></p>
+        </div>
+        <p id="hashes"></p>
+        <div id="images">
+            <img id="first" src="" alt="">
+            <img id="second" src="" alt="">
+        </div>
+
+        <script>
+            var next_button = document.getElementById("next-button");
+            var ok_button = document.getElementById("ok-button");
+            var image_div = document.getElementById("images");
+            var info_box = document.getElementById("info");
+            var hashes = document.getElementById("hashes");
+            var index = 0;
+            
+            function httpGetAsync(theUrl, callback) {
+                var xmlHttp = new XMLHttpRequest();
+                xmlHttp.onreadystatechange = function() {
+                    if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+                    callback(xmlHttp.responseText);
+                }
+                xmlHttp.open("GET", theUrl, true);
+                xmlHttp.send(null);
+            };
+            
+            function update_images(data) {
+                var response = JSON.parse(data);
+                console.log(response["message"], index);
+                image_div.children[0].src = "http://{{ address }}:{{ port }}/file?f=".concat(btoa(response["first_filename"]))
+                image_div.children[0].alt = response["first_hash"]
+                image_div.children[1].src = "http://{{ address }}:{{ port }}/file?f=".concat(btoa(response["second_filename"]))
+                image_div.children[1].alt = response["second_hash"]
+
+                info_box.textContent = "".concat(response["percents"], " | ", response["first_filename"], " - ", response["second_filename"]);
+                hashes.textContent = "".concat(response["first_hash"], " ", response["second_hash"]);
+            }
+
+            next_button.onclick = function() {
+                httpGetAsync("http://{{ address }}:{{ port }}/index?index=".concat(index.toString()), update_images);
+                index += 1;
+            };
+
+            ok_button.onclick = function() {
+                index -= 2;
+                httpGetAsync("http://{{ address }}:{{ port }}/index?index=".concat(index.toString()), update_images);
+                index += 1;
+            }
+
+            function save() {
+                httpGetAsync("http://{{ address }}:{{ port }}/save?index=".concat(index.toString()), console.log);
+                hashes.textContent += " - Saved."
+            }
+
+            function start() {
+                next_button.textContent = "-->"
+                ok_button.textContent = "<--"
+                next_button.click();
+            };
+
+            document.onkeydown = function (e) {
+                // console.log(e.keyCode); // 13
+                if (e.keyCode == 37 || e.keyCode == 81) { // back function. arrow-left or Q
+                    ok_button.click();
+                }
+                if (e.keyCode == 39 || e.keyCode == 69) { // next function. arrow-right or E
+                    next_button.click();
+                }
+                if (e.keyCode == 13) {
+                    save();
+                } // Return or Enter
+            };
+
+            start();
+        </script>
+    </body>
+</html>
