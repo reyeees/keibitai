@@ -14,3 +14,5 @@ Using:
 1. python keibitay.py \[yakei_result.txt\] {port (Default: 8000)}
 2. It will start a fastapi server, and will print into terminal an accessible address
 3. If not, just open http://127.0.0.1:8000 in your browser.
+
+![image](https://github.com/user-attachments/assets/540a551c-6cc6-4094-9c01-56a69d0ed030)
